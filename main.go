@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -29,12 +30,25 @@ func main() {
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		Activity := []Product{}
 		db.Find(&Activity)
-		// for _, s := range Activity {
-		// 	fmt.Println(s.ID, s.Code, s.Price, s.Units)
-		// }
 		template.ExecuteTemplate(w, "index.html", Activity)
-		// http.ServeFile(w, r, "index.html")
-		// template.ExecuteTemplate(w, "index.html", myProducts)
+	})
+	router.HandleFunc("/add/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "add.html")
+	})
+	router.HandleFunc("/insert/", func(w http.ResponseWriter, r *http.Request) {
+		name := r.FormValue("name")
+		price := r.FormValue("price")
+		units := r.FormValue("units")
+
+		// Create
+		db.Create(&Product{Code: name, Price: price, Units: units})
+		// http.ServeFile(w, r, "add.html")
+	})
+	router.HandleFunc("/delete/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("xxxx")
+		vars := mux.Vars(r)
+		id := vars["ID"]
+		fmt.Println("***** :", id)
 	})
 
 	// Migrate the schema
