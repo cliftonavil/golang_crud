@@ -38,17 +38,30 @@ func main() {
 	router.HandleFunc("/insert/", func(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		price := r.FormValue("price")
-		units := r.FormValue("units")
-
+		unit := r.FormValue("units")
+		fmt.Println(name, price, unit)
 		// Create
-		db.Create(&Product{Code: name, Price: price, Units: units})
-		// http.ServeFile(w, r, "add.html")
+		db.Create(&Product{Code: name, Price: 100, Units: 5000})
 	})
-	router.HandleFunc("/delete/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("xxxx")
+	router.HandleFunc("/delete/{id}/", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id := vars["ID"]
-		fmt.Println("***** :", id)
+		id := vars["id"]
+		var product Product
+		d := db.Where("id = ?", id).Delete(&product)
+
+		fmt.Println("checkdata : ", d)
+		http.Redirect(w, r, "/", http.StatusOK)
+	})
+
+	router.HandleFunc("/edit/{id}/", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+		fmt.Println("***", id)
+		Activity := []Product{}
+		fmt.Println(Activity)
+		db.Where("id = ?", id).First(&Activity)
+		fmt.Println(Activity[0])
+		template.ExecuteTemplate(w, "edit.html", Activity)
 	})
 
 	// Migrate the schema
