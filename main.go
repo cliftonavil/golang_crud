@@ -14,8 +14,8 @@ import (
 type Product struct {
 	gorm.Model
 	Code  string
-	Price uint
-	Units uint
+	Price string
+	Units string
 }
 
 func main() {
@@ -24,10 +24,10 @@ func main() {
 		panic("failed to connect database")
 	}
 	defer db.Close()
-	var template = template.Must(template.ParseFiles("index.html"))
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		var template = template.Must(template.ParseFiles("index.html"))
 		Activity := []Product{}
 		db.Find(&Activity)
 		template.ExecuteTemplate(w, "index.html", Activity)
@@ -36,40 +36,60 @@ func main() {
 		http.ServeFile(w, r, "add.html")
 	})
 	router.HandleFunc("/insert/", func(w http.ResponseWriter, r *http.Request) {
-		name := r.FormValue("name")
-		price := r.FormValue("price")
-		unit := r.FormValue("units")
-		fmt.Println(name, price, unit)
-		// Create
-		db.Create(&Product{Code: name, Price: 100, Units: 5000})
+		var template = template.Must(template.ParseFiles("index.html"))
+		if r.Method == "POST"{
+			name := r.FormValue("name")
+			price := r.FormValue("price")
+			unit := r.FormValue("units")
+			fmt.Println(name, price, unit)
+			// Create
+			db.Create(&Product{Code: name, Price: price, Units: unit})
+			Activity := []Product{}
+			db.Find(&Activity)
+			template.ExecuteTemplate(w, "index.html", Activity)
+		}else{
+			http.ServeFile(w, r, "add.html")
+		}
 	})
 	router.HandleFunc("/delete/{id}/", func(w http.ResponseWriter, r *http.Request) {
+		var template = template.Must(template.ParseFiles("index.html"))
 		vars := mux.Vars(r)
 		id := vars["id"]
 		var product Product
-		d := db.Where("id = ?", id).Delete(&product)
+		db.Where("id = ?", id).Delete(&product)
 
-		fmt.Println("checkdata : ", d)
-		http.Redirect(w, r, "/", http.StatusOK)
+		Activity := []Product{}
+		db.Find(&Activity)
+		template.ExecuteTemplate(w, "index.html", Activity)
 	})
 
 	router.HandleFunc("/edit/{id}/", func(w http.ResponseWriter, r *http.Request) {
+		var template = template.Must(template.ParseFiles("edit.html"))
 		vars := mux.Vars(r)
 		id := vars["id"]
-		fmt.Println("***", id)
 		Activity := []Product{}
-		fmt.Println(Activity)
-		db.Where("id = ?", id).First(&Activity)
-		fmt.Println(Activity[0])
+		db.First(&Activity,id)
 		template.ExecuteTemplate(w, "edit.html", Activity)
 	})
-
+	router.HandleFunc("/update/", func(w http.ResponseWriter, r *http.Request) {
+		// var template = template.Must(template.ParseFiles("index.html"))
+		id := r.FormValue("id")
+		// name := r.FormValue("name")
+		// price := r.FormValue("price")
+		// units := r.FormValue("units")
+		fmt.Println("ID :",id)
+		// Activity := []Product{}
+		val:=db.First("id = ?", id)
+		fmt.Println("Updated!!!!",val)
+		// db.Find(&Activity)
+		// template.ExecuteTemplate(w, "index.html", Activity)
+	})
 	// Migrate the schema
-	// db.AutoMigrate(&Product{})
+	db.AutoMigrate(&Product{})
 
 	// Create
 	// db.Create(&Product{Code: "Laptop", Price: 2000, Units: 100})
-	// db.Create(&Product{Code: "TV", Price: 5000, Units: 500})
+
 
 	servererror := http.ListenAndServe(":8080", router)
 	if servererror != nil {

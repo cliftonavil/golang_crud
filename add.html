@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html>
+    <header>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+      </header>
 <body>
-
+    <h4><a href="/">Home</a></h4>
 <h2>Add Products</h2>
 
 <form action="/insert/" method="POST">
     <div class="form-group">
       <label>Product Name:</label>
-      <input type="text" class="form-control" name="name">
+      <input type="text" class="col-md-4 form-control" name="name">
     </div>
     <div class="form-group">
       <label>Price</label>
-      <input type="number" class="form-control" name="price">
+      <input type="number" class="col-md-4 form-control" name="price">
     </div>
     <div class="form-group">
     <label>Units</label>
-        <input type="number" class="form-control" name="units">
+        <input type="number" class="col-md-4 form-control" name="units">
     </div>
-    <button type="submit" class="btn btn-default">Submit</button>
+    <button type="submit" class="col-md-4 btn btn-default">Submit</button>
   </form> 
 </body>
 </html>
