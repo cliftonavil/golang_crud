@@ -37,7 +37,7 @@ func main() {
 	})
 	router.HandleFunc("/insert/", func(w http.ResponseWriter, r *http.Request) {
 		var template = template.Must(template.ParseFiles("index.html"))
-		if r.Method == "POST"{
+		if r.Method == "POST" {
 			name := r.FormValue("name")
 			price := r.FormValue("price")
 			unit := r.FormValue("units")
@@ -47,7 +47,7 @@ func main() {
 			Activity := []Product{}
 			db.Find(&Activity)
 			template.ExecuteTemplate(w, "index.html", Activity)
-		}else{
+		} else {
 			http.ServeFile(w, r, "add.html")
 		}
 	})
@@ -68,28 +68,23 @@ func main() {
 		vars := mux.Vars(r)
 		id := vars["id"]
 		Activity := []Product{}
-		db.First(&Activity,id)
+		db.First(&Activity, id)
 		template.ExecuteTemplate(w, "edit.html", Activity)
 	})
 	router.HandleFunc("/update/", func(w http.ResponseWriter, r *http.Request) {
-		// var template = template.Must(template.ParseFiles("index.html"))
+		var template = template.Must(template.ParseFiles("index.html"))
 		id := r.FormValue("id")
-		// name := r.FormValue("name")
-		// price := r.FormValue("price")
-		// units := r.FormValue("units")
-		fmt.Println("ID :",id)
-		// Activity := []Product{}
-		val:=db.First("id = ?", id)
-		fmt.Println("Updated!!!!",val)
-		// db.Find(&Activity)
-		// template.ExecuteTemplate(w, "index.html", Activity)
+		name := r.FormValue("name")
+		price := r.FormValue("price")
+		units := r.FormValue("units")
+		var product Product
+		db.First(&product, id).Update(map[string]interface{}{"Price": price, "Code": name, "Units": units})
+		Activity := []Product{}
+		db.Find(&Activity)
+		template.ExecuteTemplate(w, "index.html", Activity)
 	})
 	// Migrate the schema
-	db.AutoMigrate(&Product{})
-
-	// Create
-	// db.Create(&Product{Code: "Laptop", Price: 2000, Units: 100})
-
+	// db.AutoMigrate(&Product{})
 
 	servererror := http.ListenAndServe(":8080", router)
 	if servererror != nil {
